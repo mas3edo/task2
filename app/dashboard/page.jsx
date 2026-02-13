@@ -2,9 +2,11 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link"; // 1. استيراد Link
+import { useLanguage } from "../i18n/LanguageProvider";
 
 export default function Dashboard() {
   const router = useRouter();
+  const { t } = useLanguage();
   const [user, setUser] = useState({ name: "", token: "" });
   const [loading, setLoading] = useState(true);
 
@@ -15,10 +17,10 @@ export default function Dashboard() {
     if (!token) {
       router.push("/login");
     } else {
-      setUser({ name: userName || "User", token: token });
+      setUser({ name: userName || t("common.user"), token: token });
       setLoading(false);
     }
-  }, [router]);
+  }, [router, t]);
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -30,7 +32,7 @@ export default function Dashboard() {
     return (
       <div className="flex h-screen items-center justify-center bg-[#F9F9F9]">
         <div className="text-[#C08B84] font-bold text-xl animate-pulse">
-          Loading...
+          {t("common.loading")}
         </div>
       </div>
     );
@@ -55,7 +57,7 @@ export default function Dashboard() {
           </div>
           <h2 className="text-xl font-bold text-gray-800">{user.name}</h2>
           <p className="text-[#C08B84] text-sm font-medium mb-8">
-            Premium Member
+            {t("dashboard.premiumMember")}
           </p>
 
           {/* --- NEW: Home Button --- */}
@@ -76,7 +78,7 @@ export default function Dashboard() {
                 d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
               ></path>
             </svg>
-            Go to Home
+            {t("dashboard.goHome")}
           </Link>
           {/* ------------------------ */}
         </div>
@@ -87,10 +89,10 @@ export default function Dashboard() {
             <div className="flex justify-between items-start mb-10">
               <div>
                 <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                  Dashboard
+                  {t("dashboard.title")}
                 </h1>
                 <p className="text-gray-400 text-sm">
-                  Welcome back to your personal space
+                  {t("dashboard.subtitle")}
                 </p>
               </div>
               <button className="p-3 rounded-xl border border-gray-200 text-gray-400 hover:text-[#C08B84] hover:border-[#C08B84] transition-all">
@@ -114,7 +116,7 @@ export default function Dashboard() {
             <div className="grid grid-cols-3 gap-4 mb-10">
               <div className="p-4 border border-gray-100 rounded-2xl text-center hover:border-[#C08B84] transition-all cursor-pointer group bg-white">
                 <p className="text-gray-400 text-xs mb-1 uppercase tracking-wider font-semibold">
-                  Orders
+                  {t("dashboard.stats.orders")}
                 </p>
                 <p className="text-2xl font-bold text-gray-800 group-hover:text-[#C08B84]">
                   12
@@ -122,7 +124,7 @@ export default function Dashboard() {
               </div>
               <div className="p-4 border border-gray-100 rounded-2xl text-center hover:border-[#C08B84] transition-all cursor-pointer group bg-white">
                 <p className="text-gray-400 text-xs mb-1 uppercase tracking-wider font-semibold">
-                  Wishlist
+                  {t("dashboard.stats.wishlist")}
                 </p>
                 <p className="text-2xl font-bold text-gray-800 group-hover:text-[#C08B84]">
                   5
@@ -130,7 +132,7 @@ export default function Dashboard() {
               </div>
               <div className="p-4 border border-gray-100 rounded-2xl text-center hover:border-[#C08B84] transition-all cursor-pointer group bg-white">
                 <p className="text-gray-400 text-xs mb-1 uppercase tracking-wider font-semibold">
-                  Balance
+                  {t("dashboard.stats.balance")}
                 </p>
                 <p className="text-2xl font-bold text-gray-800 group-hover:text-[#C08B84]">
                   $240
@@ -140,14 +142,14 @@ export default function Dashboard() {
 
             <div className="space-y-4">
               <h3 className="font-bold text-gray-800 text-lg">
-                Account Status
+                {t("dashboard.accountStatus")}
               </h3>
               <div className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl border border-gray-100">
                 <span className="text-gray-500 text-sm font-medium">
-                  Verification Status
+                  {t("dashboard.verificationStatus")}
                 </span>
                 <span className="text-green-600 bg-green-50 px-4 py-1 rounded-full text-xs font-bold border border-green-100">
-                  Verified
+                  {t("dashboard.verified")}
                 </span>
               </div>
             </div>
@@ -157,15 +159,17 @@ export default function Dashboard() {
           <div className="mt-12 flex items-center justify-between border-t border-gray-100 pt-8">
             <div className="hidden sm:block">
               <p className="text-gray-400 text-xs uppercase tracking-widest font-bold">
-                Last Login
+                {t("dashboard.lastLogin")}
               </p>
-              <p className="font-bold text-gray-800">Just Now</p>
+              <p className="font-bold text-gray-800">
+                {t("dashboard.justNow")}
+              </p>
             </div>
             <button
               onClick={handleLogout}
               className="flex items-center gap-3 bg-[#C08B84] text-white px-10 py-4 rounded-xl font-bold shadow-lg shadow-[#C08B84]/30 hover:bg-[#a87670] transition-all transform hover:scale-105"
             >
-              <span>Logout</span>
+              <span>{t("dashboard.logout")}</span>
               <svg
                 className="w-5 h-5"
                 fill="none"

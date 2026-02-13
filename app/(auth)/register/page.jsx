@@ -3,9 +3,11 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import axios from "axios";
+import { useLanguage } from "../../i18n/LanguageProvider";
 
 export default function Register() {
   const router = useRouter();
+  const { lang, t } = useLanguage();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [showPass, setShowPass] = useState(false);
@@ -45,7 +47,7 @@ export default function Register() {
 
     // 1. Client-side validation in English
     if (formData.password !== formData.password_confirmation) {
-      setError("Passwords do not match"); // رسالة إنجليزي
+      setError(t("auth.register.passwordsNoMatch"));
       setLoading(false);
       return;
     }
@@ -55,7 +57,7 @@ export default function Register() {
         "https://skipapp.ae/api/auth/register",
         formData,
         {
-          headers: { "Accept-Language": "en" }, // طلب الرد بالإنجليزي من السيرفر
+          headers: { "Accept-Language": lang },
         },
       );
 
@@ -65,9 +67,8 @@ export default function Register() {
       }
       router.push("/verify");
     } catch (err) {
-      // 2. Fallback error message in English
       const msg = err.response?.data?.message;
-      setError(msg || "Registration failed. Please check your inputs.");
+      setError(msg || t("auth.register.registrationFailed"));
     } finally {
       setLoading(false);
     }
@@ -115,10 +116,15 @@ export default function Register() {
   const labelStyle = "block text-sm font-semibold text-gray-700 mb-1";
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-[#F9F9F9] p-4 font-sans text-left">
+    <div
+      className={
+        "flex justify-center items-center min-h-screen bg-[#F9F9F9] p-4 font-sans " +
+        (lang === "ar" ? "text-right" : "text-left")
+      }
+    >
       <div className="bg-white p-8 rounded-3xl shadow-sm border border-gray-100 w-full max-w-lg">
         <h2 className="text-3xl font-bold text-gray-900 text-center mb-6">
-          Create Account
+          {t("auth.register.title")}
         </h2>
         {error && (
           <div className="mb-4 p-3 bg-red-50 text-red-600 text-sm rounded-xl border border-red-100 text-center">
@@ -131,30 +137,32 @@ export default function Register() {
           {/* ... Inputs for Name, Email, Country ... */}
 
           <div>
-            <label className={labelStyle}>Full Name</label>
+            <label className={labelStyle}>{t("auth.register.fullName")}</label>
             <input
               name="name"
               type="text"
               onChange={handleChange}
               className={inputStyle}
-              placeholder="Ahmed Muhammad"
+              placeholder={t("auth.register.fullNamePlaceholder")}
               required
             />
           </div>
           <div>
-            <label className={labelStyle}>Email Address</label>
+            <label className={labelStyle}>
+              {t("auth.register.emailAddress")}
+            </label>
             <input
               name="email"
               type="email"
               onChange={handleChange}
               className={inputStyle}
-              placeholder="example@mail.com"
+              placeholder={t("auth.register.emailPlaceholder")}
               required
             />
           </div>
           <div className="grid grid-cols-12 gap-3">
             <div className="col-span-5">
-              <label className={labelStyle}>Country</label>
+              <label className={labelStyle}>{t("auth.register.country")}</label>
               <select
                 name="mobile_country_code"
                 value={formData.mobile_country_code}
@@ -175,7 +183,7 @@ export default function Register() {
               </select>
             </div>
             <div className="col-span-7">
-              <label className={labelStyle}>Mobile</label>
+              <label className={labelStyle}>{t("auth.register.mobile")}</label>
               <input
                 name="mobile"
                 type="tel"
@@ -189,27 +197,27 @@ export default function Register() {
           </div>
           {/* Gender */}
           <div>
-            <label className={labelStyle}>Gender</label>
+            <label className={labelStyle}>{t("auth.register.gender")}</label>
             <div className="grid grid-cols-2 gap-3">
               <button
                 type="button"
                 onClick={() => setFormData({ ...formData, gender: "male" })}
                 className={`flex items-center justify-center gap-2 p-3 rounded-xl border transition-all ${formData.gender === "male" ? "border-[#C08B84] bg-[#F4EBEA] text-[#C08B84]" : "border-gray-100 text-gray-400"}`}
               >
-                Male
+                {t("auth.register.male")}
               </button>
               <button
                 type="button"
                 onClick={() => setFormData({ ...formData, gender: "female" })}
                 className={`flex items-center justify-center gap-2 p-3 rounded-xl border transition-all ${formData.gender === "female" ? "border-[#C08B84] bg-[#F4EBEA] text-[#C08B84]" : "border-gray-100 text-gray-400"}`}
               >
-                Female
+                {t("auth.register.female")}
               </button>
             </div>
           </div>
           {/* Passwords */}
           <div className="relative">
-            <label className={labelStyle}>Password</label>
+            <label className={labelStyle}>{t("auth.register.password")}</label>
             <input
               name="password"
               type={showPass ? "text" : "password"}
@@ -221,13 +229,18 @@ export default function Register() {
             <button
               type="button"
               onClick={() => setShowPass(!showPass)}
-              className="absolute right-4 top-9 text-gray-400 hover:text-[#C08B84]"
+              className={
+                "absolute top-9 text-gray-400 hover:text-[#C08B84] " +
+                (lang === "ar" ? "left-4" : "right-4")
+              }
             >
               {showPass ? <EyeOffIcon /> : <EyeIcon />}
             </button>
           </div>
           <div className="relative">
-            <label className={labelStyle}>Confirm Password</label>
+            <label className={labelStyle}>
+              {t("auth.register.confirmPassword")}
+            </label>
             <input
               name="password_confirmation"
               type={showConfirmPass ? "text" : "password"}
@@ -239,7 +252,10 @@ export default function Register() {
             <button
               type="button"
               onClick={() => setShowConfirmPass(!showConfirmPass)}
-              className="absolute right-4 top-9 text-gray-400 hover:text-[#C08B84]"
+              className={
+                "absolute top-9 text-gray-400 hover:text-[#C08B84] " +
+                (lang === "ar" ? "left-4" : "right-4")
+              }
             >
               {showConfirmPass ? <EyeOffIcon /> : <EyeIcon />}
             </button>
@@ -250,17 +266,19 @@ export default function Register() {
             disabled={loading}
             className="w-full py-4 bg-[#C08B84] text-white font-bold rounded-xl shadow-lg hover:bg-[#a87670] transition-all"
           >
-            {loading ? "Processing..." : "Register"}
+            {loading
+              ? t("auth.register.processing")
+              : t("auth.register.register")}
           </button>
         </form>
 
         <p className="mt-6 text-center text-gray-500 text-sm">
-          Already have an account?{" "}
+          {t("auth.register.haveAccount")}{" "}
           <Link
             href="/login"
             className="text-[#C08B84] font-bold hover:underline"
           >
-            Login
+            {t("auth.register.login")}
           </Link>
         </p>
       </div>

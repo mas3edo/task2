@@ -3,9 +3,11 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import axios from "axios";
+import { useLanguage } from "../../i18n/LanguageProvider";
 
 export default function Login() {
   const router = useRouter();
+  const { lang, t } = useLanguage();
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -32,7 +34,7 @@ export default function Login() {
         "https://skipapp.ae/api/auth/login",
         dataToSend,
         {
-          headers: { "Accept-Language": "en" }, // طلب الرد بالإنجليزي
+          headers: { "Accept-Language": lang },
         },
       );
       if (res.data.data && res.data.data.token) {
@@ -41,9 +43,8 @@ export default function Login() {
         router.push("/dashboard");
       }
     } catch (err) {
-      // رسالة الخطأ الافتراضية بالإنجليزي
       const msg = err.response?.data?.message;
-      setError(msg || "Invalid email or password");
+      setError(msg || t("auth.login.invalidCredentials"));
     } finally {
       setLoading(false);
     }
@@ -90,12 +91,17 @@ export default function Login() {
 
   return (
     <div className="flex justify-center items-center h-screen bg-[#F9F9F9]">
-      <div className="bg-white p-10 rounded-3xl shadow-sm border border-gray-100 w-full max-w-md">
+      <div
+        className={
+          "bg-white p-10 rounded-3xl shadow-sm border border-gray-100 w-full max-w-md " +
+          (lang === "ar" ? "text-right" : "text-left")
+        }
+      >
         <div className="text-center mb-10">
           <h2 className="text-4xl font-bold text-gray-900 tracking-tight">
-            Welcome Back
+            {t("auth.login.welcomeBack")}
           </h2>
-          <p className="text-gray-400 mt-2">Please login to your account</p>
+          <p className="text-gray-400 mt-2">{t("auth.login.subtitle")}</p>
         </div>
 
         {error && (
@@ -107,12 +113,12 @@ export default function Login() {
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Email Address
+              {t("auth.login.emailAddress")}
             </label>
             <input
               name="email"
               type="email"
-              placeholder="example@mail.com"
+              placeholder={t("auth.login.emailPlaceholder")}
               onChange={handleChange}
               className={inputStyle}
               required
@@ -121,7 +127,7 @@ export default function Login() {
 
           <div className="relative">
             <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Password
+              {t("auth.login.password")}
             </label>
             <input
               name="password"
@@ -134,7 +140,10 @@ export default function Login() {
             <button
               type="button"
               onClick={() => setShowPass(!showPass)}
-              className="absolute right-4 top-[46px] text-gray-400 hover:text-[#C08B84] transition-colors"
+              className={
+                "absolute top-[46px] text-gray-400 hover:text-[#C08B84] transition-colors " +
+                (lang === "ar" ? "left-4" : "right-4")
+              }
             >
               {showPass ? <EyeOffIcon /> : <EyeIcon />}
             </button>
@@ -145,17 +154,17 @@ export default function Login() {
             disabled={loading}
             className={`w-full py-4 text-white font-bold rounded-xl shadow-lg transition-all ${loading ? "bg-[#dccbc9]" : "bg-[#C08B84] hover:bg-[#a87670]"}`}
           >
-            {loading ? "Logging in..." : "Login"}
+            {loading ? t("auth.login.loggingIn") : t("auth.login.login")}
           </button>
         </form>
 
         <p className="mt-8 text-center text-gray-500">
-          Don't have an account?{" "}
+          {t("auth.login.noAccount")}{" "}
           <Link
             href="/register"
             className="text-[#C08B84] font-bold hover:underline"
           >
-            Create Account
+            {t("auth.login.createAccount")}
           </Link>
         </p>
       </div>

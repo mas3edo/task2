@@ -12,10 +12,20 @@ import { translations } from "./translations";
 
 const LanguageContext = createContext(null);
 const STORAGE_KEY = "lang";
+const COOKIE_KEY = "lang";
+const COOKIE_MAX_AGE_SECONDS = 60 * 60 * 24 * 365; // 1 year
 
 function normalizeLang(value) {
   if (value === "en" || value === "ar") return value;
   return null;
+}
+
+function setLangCookie(lang) {
+  try {
+    document.cookie = `${COOKIE_KEY}=${lang}; Path=/; Max-Age=${COOKIE_MAX_AGE_SECONDS}; SameSite=Lax`;
+  } catch {
+    // ignore
+  }
 }
 
 export function LanguageProvider({ children, defaultLang = "en" }) {
@@ -37,6 +47,8 @@ export function LanguageProvider({ children, defaultLang = "en" }) {
     } catch {
       // ignore
     }
+
+    setLangCookie(lang);
 
     const dir = lang === "ar" ? "rtl" : "ltr";
     document.documentElement.lang = lang;

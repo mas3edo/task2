@@ -1,11 +1,13 @@
 import Navbar from "./(nav)/Navbar";
-import ProductDetails from "./(section)/ProductDetails";
+import All from "./(section)/all";
+import Footer from "./Footer";
 
 export default function Page() {
   return (
     <>
       <Navbar />
-      <ProductDetails />
+      <All />
+      <Footer />
     </>
   );
 }

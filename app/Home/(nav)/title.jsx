@@ -1,6 +1,12 @@
+"use client";
+
 import React from "react";
+import { useLanguage } from "../../i18n/LanguageProvider";
 import backgroundImage from "../../images/background.png"; // تأكد من مسار الصورة
 export default function Title() {
+  const { t } = useLanguage();
+  const title = t("common.productDetails");
+
   return (
     <div className="title relative w-full overflow-hidden">
       <img
@@ -10,10 +16,10 @@ export default function Title() {
       />
       <div className="container absolute inset-0 w-full h-full z-10 bg-white/70 flex items-center justify-center text-center">
         <h1 className="font-bold text-4xl text-black opacity-5 md:text-7xl ">
-          Product Details
+          {title}
         </h1>
         <h1 className="text-[#020202] font-[600] text-2xl md:text-4xl absolute z-20">
-          Product Details
+          {title}
         </h1>
       </div>
     </div>

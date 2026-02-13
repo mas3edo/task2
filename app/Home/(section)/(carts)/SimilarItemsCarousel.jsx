@@ -1,11 +1,13 @@
 "use client";
-import { useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { Icon } from "@iconify/react";
 
 // التعديل هنا: ضفنا = [] عشان لو الداتا مجاتش، يعتبرها مصفوفة فاضية وميضربش
 export default function SimilarItemsCarousel({ products = [] }) {
   const scrollRef = useRef(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
 
   // حماية إضافية: لو المصفوفة فاضية، ميرسمش حاجة أو يرسم رسالة
   if (!products || products.length === 0) {
@@ -16,14 +18,52 @@ export default function SimilarItemsCarousel({ products = [] }) {
     );
   }
 
+  const updateNavState = useCallback(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+
+    // Tolerance to avoid off-by-1 due to subpixel rendering
+    const atStart = el.scrollLeft <= 1;
+    const atEnd = el.scrollLeft + el.clientWidth >= el.scrollWidth - 1;
+
+    setCanScrollLeft(!atStart);
+    setCanScrollRight(!atEnd);
+  }, []);
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+
+    updateNavState();
+
+    const onScroll = () => updateNavState();
+    el.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+
+    // In case images/content affect layout after mount
+    const id = window.setTimeout(updateNavState, 0);
+
+    return () => {
+      window.clearTimeout(id);
+      el.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
+  }, [products.length, updateNavState]);
+
   const scroll = (direction) => {
     const { current } = scrollRef;
     if (current) {
+      if (direction === "left" && !canScrollLeft) return;
+      if (direction === "right" && !canScrollRight) return;
+
       const scrollAmount = 300;
       current.scrollBy({
         left: direction === "left" ? -scrollAmount : scrollAmount,
         behavior: "smooth",
       });
+
+      // Ensure the buttons update even if the browser batches scroll events
+      window.requestAnimationFrame(updateNavState);
     }
   };
 
@@ -122,13 +162,25 @@ export default function SimilarItemsCarousel({ products = [] }) {
       <div className="flex justify-center items-center gap-4 mt-6">
         <button
           onClick={() => scroll("left")}
-          className="w-10 h-10 rounded-full bg-[#C08B84] text-white flex items-center justify-center shadow-lg shadow-[#C08B84]/30 hover:bg-[#a87670] transition-all"
+          disabled={!canScrollLeft}
+          className={
+            "w-10 h-10 rounded-full flex items-center justify-center transition-all " +
+            (canScrollLeft
+              ? "bg-[#C08B84] text-white shadow-lg shadow-[#C08B84]/30 hover:bg-[#a87670]"
+              : "bg-white text-gray-400 border border-gray-200 shadow-sm cursor-not-allowed")
+          }
         >
           <Icon icon="mdi:chevron-left" className="w-6 h-6" />
         </button>
         <button
           onClick={() => scroll("right")}
-          className="w-10 h-10 rounded-full bg-[#C08B84] text-white flex items-center justify-center shadow-lg shadow-[#C08B84]/30 hover:bg-[#a87670] transition-all"
+          disabled={!canScrollRight}
+          className={
+            "w-10 h-10 rounded-full flex items-center justify-center transition-all " +
+            (canScrollRight
+              ? "bg-[#C08B84] text-white shadow-lg shadow-[#C08B84]/30 hover:bg-[#a87670]"
+              : "bg-white text-gray-400 border border-gray-200 shadow-sm cursor-not-allowed")
+          }
         >
           <Icon icon="mdi:chevron-right" className="w-6 h-6" />
         </button>
